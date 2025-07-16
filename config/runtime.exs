@@ -65,6 +65,27 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  gemini_api_key =
+    System.get_env("GEMINI_API_KEY") ||
+      raise "environment variable GEMINI_API_KEY is missing"
+
+  gemini_api_url =
+    System.get_env("GEMINI_API_URL") ||
+      raise "environment variable GEMINI_API_URL is missing"
+
+  config :overflow, :gemini,
+    api_key: gemini_api_key,
+    api_url: gemini_api_url
+
+  rerank_backend =
+    case System.get_env("RERANK_BACKEND", "local") do
+      "local" -> :local
+      "gemini" -> :gemini
+      other -> raise "Invalid RERANK_BACKEND: #{other}. Must be 'local' or 'gemini'"
+    end
+
+  config :overflow, :rerank_backend, rerank_backend
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

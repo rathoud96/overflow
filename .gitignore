@@ -26,3 +26,5 @@ erl_crash.dump
 overflow-*.tar
 
 .cursor/
+
+.env

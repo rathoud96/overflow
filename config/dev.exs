@@ -64,3 +64,9 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+config :overflow, :rerank_backend, :gemini
+
+config :overflow, :gemini,
+  api_key: System.get_env("GEMINI_API_KEY", ""),
+  api_url: System.get_env("GEMINI_API_URL", "")

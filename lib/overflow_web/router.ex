@@ -7,6 +7,10 @@ defmodule OverflowWeb.Router do
 
   scope "/api", OverflowWeb do
     pipe_through :api
+    post "/search", SearchController, :search
+    post "/rerank", RerankController, :rerank
+    post "/signup", AuthController, :signup
+    post "/login", AuthController, :login
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
