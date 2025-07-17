@@ -3,14 +3,38 @@ defmodule OverflowWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug CORSPlug
+  end
+
+  pipeline :api_optional_auth do
+    plug :accepts, ["json"]
+    plug CORSPlug
+    plug OverflowWeb.Plugs.OptionalAuth
+  end
+
+  pipeline :api_auth do
+    plug :accepts, ["json"]
+    plug CORSPlug
+    plug OverflowWeb.Plugs.RequireAuth
   end
 
   scope "/api", OverflowWeb do
     pipe_through :api
-    post "/search", SearchController, :search
-    post "/rerank", RerankController, :rerank
     post "/signup", AuthController, :signup
     post "/login", AuthController, :login
+  end
+
+  scope "/api", OverflowWeb do
+    pipe_through :api_optional_auth
+    post "/search", SearchController, :search
+    post "/rerank", RerankController, :rerank
+    post "/rerank-structured", RerankController, :rerank_structured
+    get "/search/answers/:question_id", SearchController, :get_answers
+  end
+
+  scope "/api", OverflowWeb do
+    pipe_through :api_auth
+    get "/search/recent", SearchController, :recent_questions
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
