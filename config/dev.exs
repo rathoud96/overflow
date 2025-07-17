@@ -23,7 +23,7 @@ config :overflow, OverflowWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "5Pq38oeEkIH8of7DL0o7DDrv4XJpISbWI64/OreuLq4qAPaJN2mKIzgOkEBKUwct",
+  secret_key_base: System.get_env("SECRET_KEY_BASE") || "5Pq38oeEkIH8of7DL0o7DDrv4XJpISbWI64/OreuLq4qAPaJN2mKIzgOkEBKUwct",
   watchers: []
 
 # ## SSL Support

@@ -37,3 +37,6 @@ config :overflow, :rerank_backend, :local
 config :overflow, :gemini,
   api_key: System.get_env("GEMINI_API_KEY", ""),
   api_url: System.get_env("GEMINI_API_URL", "")
+
+config :overflow, :search_impl, Overflow.Search
+config :overflow, :ranking_api_impl, Overflow.RankingApi

@@ -9,7 +9,14 @@ import Config
 
 config :overflow,
   ecto_repos: [Overflow.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime, binary_id: true],
+  token_salt: System.get_env("TOKEN_SALT", "user_auth_default_salt_change_in_production"),
+  api_timeout: 30_000,
+  # External API providers
+  qa_provider: Overflow.External.StackOverflow.Provider,
+  search_impl: Overflow.Search.Engine,
+  ranking_api_impl: Overflow.External.Ranking.API,
+  rerank_backend: :local
 
 # Configures the endpoint
 config :overflow, OverflowWeb.Endpoint,
