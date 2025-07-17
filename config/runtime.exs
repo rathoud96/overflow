@@ -51,6 +51,8 @@ if config_env() == :prod do
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
+  origins = String.split(System.get_env("CORS_HOSTS", "*"), ",")
+
   config :overflow, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :overflow, OverflowWeb.Endpoint,
@@ -64,6 +66,8 @@ if config_env() == :prod do
       port: port
     ],
     secret_key_base: secret_key_base
+
+  config :cors_plug, origin: origins
 
   # Configure Gemini only if API key is provided
   case System.get_env("GEMINI_API_KEY") do

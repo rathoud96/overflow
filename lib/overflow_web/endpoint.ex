@@ -46,6 +46,7 @@ defmodule OverflowWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
+  plug CORSPlug
   plug Plug.Session, @session_options
   plug OverflowWeb.Router
 end

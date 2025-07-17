@@ -7,6 +7,12 @@
 # General application configuration
 import Config
 
+config :overflow,
+  ecto_repos: [Overflow.Repo],
+  generators: [timestamp_type: :utc_datetime, binary_id: true],
+  token_salt: System.get_env("TOKEN_SALT", "user_auth_default_salt_change_in_production"),
+  api_timeout: 30_000
+
 # Configures the endpoint
 config :overflow, OverflowWeb.Endpoint,
   url: [host: "localhost"],
@@ -37,10 +43,10 @@ config :phoenix, :json_library, Jason
 
 # CORS configuration
 config :cors_plug,
-  origin: ["http://localhost:3000", "http://localhost:4000", "http://localhost:5173"],
-  credentials: true,
-  allow_headers: ["authorization", "content-type", "accept"],
-  expose_headers: ["content-type"]
+  origin: ["*"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  headers: ["authorization", "content-type", "x-requested-with"],
+  max_age: 86400
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

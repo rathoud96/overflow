@@ -138,9 +138,9 @@ defmodule OverflowWeb.AuthController do
       }
   """
   @spec login(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def login(conn, %{"identifier" => identifier, "password" => password})
-      when is_binary(identifier) and is_binary(password) do
-    case Accounts.authenticate_user(identifier, password) do
+  def login(conn, %{"email" => email, "password" => password})
+      when is_binary(email) and is_binary(password) do
+    case Accounts.authenticate_user(email, password) do
       {:ok, %User{} = user} ->
         token =
           Phoenix.Token.sign(OverflowWeb.Endpoint, @token_salt, user.id, max_age: @token_max_age)
