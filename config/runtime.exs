@@ -91,6 +91,7 @@ if config_env() == :prod do
       config :overflow, :ranking_provider, ranking_provider
 
       config :overflow,
+             :ml_ranking_url,
              System.get_env("ML_RANKING_URL", "http://localhost:11434/v1/chat/completions")
   end
 

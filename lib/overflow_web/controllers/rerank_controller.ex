@@ -52,10 +52,10 @@ defmodule OverflowWeb.RerankController do
   def rerank(conn, %{"question" => question, "answers" => answers, "preference" => preference})
       when is_binary(question) and is_list(answers) and is_binary(preference) do
     # Get the backend type and determine the appropriate provider module
-    backend = Application.get_env(:overflow, :rerank_backend, :local)
-    ranking_provider = get_ranking_provider(backend)
+    backend = Application.get_env(:overflow, :ranking_provider, :local)
+    ranking_mod = get_ranking_provider(backend)
 
-    case ranking_provider.rerank_answers(question, answers, preference) do
+    case ranking_mod.rerank_answers(question, answers, preference) do
       {:ok, reordered} ->
         json(conn, %{answers: reordered})
 
