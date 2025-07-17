@@ -1,0 +1,79 @@
+# Docker
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+README.Docker.md
+
+# Build artifacts
+_build/
+deps/
+
+# Generated files
+doc/
+
+# Static artifacts
+/priv/static/
+
+# Database
+*.db
+
+# Environment files
+.env*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Test artifacts
+cover/
+test/fixtures/
+*.beam
+
+# Mix release artifacts
+/rel/
+
+# Sensitive data
+config/prod.secret.exs
+
+# Development tools
+.cursor/
+.git/
+.gitignore
+README.md
+ENVIRONMENT.md
+test-docker.sh
+setup-env.sh
+Makefile

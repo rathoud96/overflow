@@ -65,26 +65,31 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-  gemini_api_key =
-    System.get_env("GEMINI_API_KEY") ||
-      raise "environment variable GEMINI_API_KEY is missing"
+  # Configure Gemini only if API key is provided
+  case System.get_env("GEMINI_API_KEY") do
+    nil ->
+      # Gemini not configured, use local backend
+      config :overflow, :rerank_backend, :local
 
-  gemini_api_url =
-    System.get_env("GEMINI_API_URL") ||
-      raise "environment variable GEMINI_API_URL is missing"
+    gemini_api_key ->
+      gemini_api_url =
+        System.get_env("GEMINI_API_URL") ||
+          raise "environment variable GEMINI_API_URL is missing when GEMINI_API_KEY is provided"
 
-  config :overflow, :gemini,
-    api_key: gemini_api_key,
-    api_url: gemini_api_url
+      config :overflow, :gemini,
+        api_key: gemini_api_key,
+        api_url: gemini_api_url
 
-  rerank_backend =
-    case System.get_env("RERANK_BACKEND", "local") do
-      "local" -> :local
-      "gemini" -> :gemini
-      other -> raise "Invalid RERANK_BACKEND: #{other}. Must be 'local' or 'gemini'"
-    end
+      # Configure backend based on environment variable or default to local if Gemini is available
+      rerank_backend =
+        case System.get_env("RERANK_BACKEND", "local") do
+          "local" -> :local
+          "gemini" -> :gemini
+          other -> raise "Invalid RERANK_BACKEND: #{other}. Must be 'local' or 'gemini'"
+        end
 
-  config :overflow, :rerank_backend, rerank_backend
+      config :overflow, :rerank_backend, rerank_backend
+  end
 
   # ## SSL Support
   #

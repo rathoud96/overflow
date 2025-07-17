@@ -18,6 +18,14 @@ defmodule OverflowWeb.Router do
     plug OverflowWeb.Plugs.RequireAuth
   end
 
+  # Health check endpoints (no authentication required)
+  scope "/", OverflowWeb do
+    pipe_through :api
+    get "/health", HealthController, :health
+    get "/health/ready", HealthController, :ready
+    get "/health/live", HealthController, :live
+  end
+
   scope "/api", OverflowWeb do
     pipe_through :api
     post "/signup", AuthController, :signup

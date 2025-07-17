@@ -27,4 +27,12 @@ overflow-*.tar
 
 .cursor/
 
+# Environment files (contain sensitive data)
 .env
+.env.local
+.env.prod
+.env.staging
+.env.*.local
+
+# Keep template file
+!.env.example

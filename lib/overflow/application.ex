@@ -7,6 +7,9 @@ defmodule Overflow.Application do
 
   @impl true
   def start(_type, _args) do
+    # Store application start time for health checks
+    Application.put_env(:overflow, :start_time, System.system_time(:second))
+
     children = [
       OverflowWeb.Telemetry,
       Overflow.Repo,

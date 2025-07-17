@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env.prod
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/overflow_prod
+      - PHX_HOST=localhost
+      - PHX_SERVER=true
+      - MIX_ENV=prod
+      # Override defaults if needed
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-change-this-in-production}
+      - TOKEN_SALT=${TOKEN_SALT:-your-token-salt-change-this-in-production}
+    depends_on:
+      - db
+    volumes:
+      - ./priv/static:/app/priv/static:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4000/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=overflow_prod
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Optional: ML Ranking Service (placeholder)
+  # Uncomment if you have a ML ranking service
+  # ml-service:
+  #   image: your-ml-ranking-service:latest
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - MODEL_PATH=/models
+  #   volumes:
+  #     - ./models:/models:ro
+
+volumes:
+  postgres_data:
