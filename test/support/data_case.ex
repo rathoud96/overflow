@@ -24,6 +24,12 @@ defmodule Overflow.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Overflow.DataCase
+
+      # Import ExMachina for test data factories
+      import Overflow.Factory
+
+      # Import Mox for mocking
+      import Mox
     end
   end
 

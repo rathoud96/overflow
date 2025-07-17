@@ -1,27 +1,26 @@
 defmodule OverflowWeb.AuthControllerTest do
   use OverflowWeb.ConnCase, async: true
   alias Overflow.Repo
-  alias Overflow.User
-
-  @signup_attrs %{
-    email: "test@example.com",
-    username: "testuser",
-    password: "supersecret"
-  }
-  @signup_attrs_str %{
-    "email" => "test@example.com",
-    "username" => "testuser",
-    "password" => "supersecret"
-  }
+  alias Overflow.Accounts.User
 
   describe "POST /api/signup" do
     test "registers a new user", %{conn: conn} do
-      conn = post(conn, "/api/signup", @signup_attrs)
+      user_params = %{
+        email: Faker.Internet.email(),
+        username: Faker.Internet.user_name(),
+        password: "supersecret123"
+      }
 
-      assert %{"id" => _, "email" => "test@example.com", "username" => "testuser"} =
-               json_response(conn, 201)
+      conn = post(conn, "/api/signup", user_params)
 
-      assert Repo.get_by(User, email: "test@example.com")
+      assert %{
+               "token" => _,
+               "user" => %{"id" => _, "email" => email, "username" => username}
+             } = json_response(conn, 201)
+
+      assert email == user_params.email
+      assert username == user_params.username
+      assert Repo.get_by(User, email: user_params.email)
     end
 
     test "fails with missing fields", %{conn: conn} do
@@ -30,38 +29,70 @@ defmodule OverflowWeb.AuthControllerTest do
     end
 
     test "fails with duplicate email", %{conn: conn} do
-      _ = post(conn, "/api/signup", @signup_attrs)
-      conn = post(conn, "/api/signup", @signup_attrs)
+      user = insert(:user)
+
+      duplicate_params = %{
+        email: user.email,
+        username: Faker.Internet.user_name(),
+        password: "password123"
+      }
+
+      conn = post(conn, "/api/signup", duplicate_params)
+      assert %{"errors" => _} = json_response(conn, 422)
+    end
+
+    test "fails with duplicate username", %{conn: conn} do
+      user = insert(:user)
+
+      duplicate_params = %{
+        email: Faker.Internet.email(),
+        username: user.username,
+        password: "password123"
+      }
+
+      conn = post(conn, "/api/signup", duplicate_params)
       assert %{"errors" => _} = json_response(conn, 422)
     end
   end
 
   describe "POST /api/login" do
     setup do
-      {:ok, _user} = Overflow.Accounts.register_user(@signup_attrs_str)
-      :ok
+      user = insert(:user_with_email, password_hash: Bcrypt.hash_pwd_salt("supersecret123"))
+      {:ok, user: user}
     end
 
-    test "logs in with correct credentials (email)", %{conn: conn} do
-      conn = post(conn, "/api/login", %{identifier: "test@example.com", password: "supersecret"})
+    test "logs in with correct credentials (email)", %{conn: conn, user: user} do
+      conn =
+        post(conn, "/api/login", %{"identifier" => user.email, "password" => "supersecret123"})
 
-      assert %{"token" => _, "user" => %{"email" => "test@example.com"}} =
-               json_response(conn, 200)
+      assert %{"token" => _, "user" => %{"email" => email}} = json_response(conn, 200)
+      assert email == user.email
     end
 
-    test "logs in with correct credentials (username)", %{conn: conn} do
-      conn = post(conn, "/api/login", %{identifier: "testuser", password: "supersecret"})
-      assert %{"token" => _, "user" => %{"username" => "testuser"}} = json_response(conn, 200)
+    test "logs in with correct credentials (username)", %{conn: conn, user: user} do
+      conn =
+        post(conn, "/api/login", %{"identifier" => user.username, "password" => "supersecret123"})
+
+      assert %{"token" => _, "user" => %{"username" => username}} = json_response(conn, 200)
+      assert username == user.username
     end
 
-    test "fails with wrong password", %{conn: conn} do
-      conn = post(conn, "/api/login", %{identifier: "test@example.com", password: "wrongpass"})
+    test "fails with wrong password", %{conn: conn, user: user} do
+      conn =
+        post(conn, "/api/login", %{"identifier" => user.email, "password" => "wrongpassword"})
+
       assert %{"error" => _} = json_response(conn, 401)
     end
 
     test "fails with unknown user", %{conn: conn} do
-      conn = post(conn, "/api/login", %{identifier: "unknown", password: "whatever"})
+      fake_email = Faker.Internet.email()
+      conn = post(conn, "/api/login", %{"identifier" => fake_email, "password" => "whatever"})
       assert %{"error" => _} = json_response(conn, 401)
+    end
+
+    test "fails with missing fields", %{conn: conn} do
+      conn = post(conn, "/api/login", %{})
+      assert %{"error" => "Missing required fields: identifier, password"} = json_response(conn, 400)
     end
   end
 end

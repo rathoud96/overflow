@@ -28,6 +28,9 @@ defmodule OverflowWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import OverflowWeb.ConnCase
+
+      # Import ExMachina for test data factories
+      import Overflow.Factory
     end
   end
 
