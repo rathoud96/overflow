@@ -5,8 +5,9 @@ defmodule Overflow.External.Ranking.Local do
   This module provides functionality to rerank answers using a local
   LLM service that implements OpenAI-compatible API endpoints.
   """
+  alias Overflow.Utils.HtmlSanitizer
 
-  @behaviour Overflow.External.Ranking.Behaviour
+  @behaviour Overflow.External.RankingProvider
 
   @doc """
   Reranks answers using a local LLM service.
@@ -23,7 +24,7 @@ defmodule Overflow.External.Ranking.Local do
   @spec rerank_answers(String.t(), list(), String.t()) :: {:ok, list()} | {:error, any()}
   def rerank_answers(question, answers, preference \\ "relevance")
       when is_binary(question) and is_list(answers) do
-    llm_url = System.get_env("ML_RANKING_URL")
+    llm_url = Application.get_env(:overflow, :ml_ranking_url)
 
     timeout =
       case System.get_env("ML_RANKING_TIMEOUT") do
@@ -58,7 +59,7 @@ defmodule Overflow.External.Ranking.Local do
         },
         %{"role" => "user", "content" => prompt}
       ],
-      "max_tokens" => 2048,
+      "max_tokens" => 4096,
       "temperature" => 0
     }
 
@@ -83,17 +84,20 @@ defmodule Overflow.External.Ranking.Local do
       Enum.map(answers, fn ans ->
         %{
           "answer_id" => ans["answer_id"] || ans[:answer_id],
-          "body" => String.slice(ans["body"] || ans[:body] || "", 0, 200)
+          "body" => HtmlSanitizer.sanitize(ans["body"] || ans[:body]) |> String.slice(0, 200)
         }
       end)
 
     """
-    Given the following question and a list of answers, return ONLY a JSON array of their answer_ids, ordered by #{preference} to the question.
+    ## TASK
+    Given a question and a list of answers, your job is to return ONLY a **JSON array of answer_ids**, ordered by their #{preference} or helpfulness to the question — from **most helpful to least helpful**.
 
-    IMPORTANT:
-    - Use ALL and ONLY the answer_ids provided below.
-    - Do NOT invent, drop, or duplicate any answer_id.
-    - Output ONLY a JSON array, e.g. [1,2,3]. No extra text.
+    ## IMPORTANT INSTRUCTIONS
+    - Use **ALL** and **ONLY** the `answer_id`s provided.
+    - **DO NOT** invent, drop, modify, or duplicate any `answer_id`.
+    - Rank even weak or repetitive answers — no filtering, just sorting.
+    - Your output must be **only a JSON array** like `[123, 456, 789]`, and nothing else.
+    - Make sure to return all the answer_ids given in the input, even if some are less relevant.
 
     Question:
     #{Jason.encode!(question)}
@@ -102,6 +106,8 @@ defmodule Overflow.External.Ranking.Local do
     #{Jason.encode!(minimal_answers)}
 
     List of answer_ids (for your reference): #{Jason.encode!(ids)}
+    Make sure to follow the instructions carefully.
+    Only return the JSON array, nothing else.
 
     Remember: Output ONLY the JSON array, nothing else.
     """

@@ -77,7 +77,7 @@ defmodule OverflowWeb.RerankControllerTest do
   describe "POST /api/rerank-structured" do
     test "returns reranked structured data", %{conn: conn} do
       question_data = %{
-        "question_id" => Faker.random_between(1, 10000),
+        "question_id" => Faker.random_between(1, 10_000),
         "title" => Faker.Lorem.sentence(3..8),
         "body" => Faker.Lorem.paragraph(2..4),
         "score" => Faker.random_between(0, 100)
@@ -85,13 +85,13 @@ defmodule OverflowWeb.RerankControllerTest do
 
       answers = [
         %{
-          "answer_id" => Faker.random_between(1, 10000),
+          "answer_id" => Faker.random_between(1, 10_000),
           "body" => Faker.Lorem.paragraph(1..3),
           "score" => Faker.random_between(0, 50),
           "is_accepted" => false
         },
         %{
-          "answer_id" => Faker.random_between(1, 10000),
+          "answer_id" => Faker.random_between(1, 10_000),
           "body" => Faker.Lorem.paragraph(2..4),
           "score" => Faker.random_between(0, 50),
           "is_accepted" => true

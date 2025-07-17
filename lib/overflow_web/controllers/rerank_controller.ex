@@ -51,9 +51,11 @@ defmodule OverflowWeb.RerankController do
   @spec rerank(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def rerank(conn, %{"question" => question, "answers" => answers, "preference" => preference})
       when is_binary(question) and is_list(answers) and is_binary(preference) do
-    ranking_mod = Application.get_env(:overflow, :ranking_api_impl, Overflow.External.Ranking.API)
+    # Get the backend type and determine the appropriate provider module
+    backend = Application.get_env(:overflow, :rerank_backend, :local)
+    ranking_provider = get_ranking_provider(backend)
 
-    case ranking_mod.rerank_answers(question, answers, preference) do
+    case ranking_provider.rerank_answers(question, answers, preference) do
       {:ok, reordered} ->
         json(conn, %{answers: reordered})
 
@@ -143,9 +145,11 @@ defmodule OverflowWeb.RerankController do
     # Extract question title or use question_id as fallback for ranking
     question_text = get_question_text(question)
 
-    ranking_mod = Application.get_env(:overflow, :ranking_api_impl, Overflow.External.Ranking.API)
+    # Get the backend type and determine the appropriate provider module
+    backend = Application.get_env(:overflow, :rerank_backend, :local)
+    ranking_provider = get_ranking_provider(backend)
 
-    case ranking_mod.rerank_answers(question_text, answers, preference) do
+    case ranking_provider.rerank_answers(question_text, answers, preference) do
       {:ok, reordered} ->
         json(conn, %{
           question: question,
@@ -200,5 +204,16 @@ defmodule OverflowWeb.RerankController do
   defp build_fallback_text(question) do
     question_id = question["question_id"] || question[:question_id] || "unknown"
     "Question #{question_id}"
+  end
+
+  # Private helper function to get the appropriate ranking provider module based on backend
+  defp get_ranking_provider(backend) do
+    case backend do
+      :local -> Overflow.External.Ranking.Local
+      :gemini -> Overflow.External.Gemini.API
+      :mock -> Overflow.External.Ranking.MockProvider
+      # Default fallback
+      _ -> Overflow.External.Ranking.Local
+    end
   end
 end

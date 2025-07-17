@@ -49,6 +49,7 @@ defmodule Overflow.MixProject do
       {:httpoison, "~> 2.0"},
       {:typed_ecto_schema, "~> 0.4.1"},
       {:cors_plug, "~> 3.0"},
+      {:floki, "~> 0.36"},
       {:dialyxir, "~> 1.3", only: [:dev], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.0", only: :test},

@@ -6,6 +6,8 @@ defmodule Overflow.External.Gemini.API do
   based on their relevance to a given question using Google's Gemini AI.
   """
 
+  @behaviour Overflow.External.RankingProvider
+
   @doc """
   Reranks answers based on their relevance to a question using Gemini AI.
 

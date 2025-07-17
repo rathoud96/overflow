@@ -15,7 +15,7 @@ config :overflow,
   # External API providers
   qa_provider: Overflow.External.StackOverflow.Provider,
   search_impl: Overflow.Search.Engine,
-  ranking_api_impl: Overflow.External.Ranking.API,
+  ranking_provider: Overflow.External.Ranking.API,
   rerank_backend: :local
 
 # Configures the endpoint

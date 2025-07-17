@@ -1,23 +1,17 @@
-defmodule Overflow.External.Ranking.Behaviour do
-  @moduledoc """
-  Behaviour for ranking API implementations.
-  """
-
-  @callback rerank_answers(String.t(), list(), String.t()) :: {:ok, list()} | {:error, any()}
-end
-
 defmodule Overflow.External.Ranking.API do
   @moduledoc """
   Reranking API dispatcher.
 
-  Routes reranking requests to the appropriate backend
-  (local LLM or Gemini) based on configuration.
+  Routes reranking requests to the appropriate ranking provider
+  based on configuration. Acts as the main entry point for all
+  ranking operations.
   """
 
   alias Overflow.External.Gemini.API, as: GeminiAPI
   alias Overflow.External.Ranking.Local
+  alias Overflow.External.Ranking.MockProvider
 
-  @behaviour Overflow.External.Ranking.Behaviour
+  @behaviour Overflow.External.RankingProvider
 
   @doc """
   Reranks answers based on configured backend.
@@ -38,6 +32,7 @@ defmodule Overflow.External.Ranking.API do
     case backend do
       :local -> Local.rerank_answers(question, answers, preference)
       :gemini -> GeminiAPI.rerank_answers(question, answers, preference)
+      :mock -> MockProvider.rerank_answers(question, answers, preference)
       _ -> {:error, :invalid_backend}
     end
   end

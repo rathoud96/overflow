@@ -67,7 +67,11 @@ config :phoenix, :plug_init_mode, :runtime
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
-config :overflow, :rerank_backend, :gemini
+config :overflow, :ranking_provider, System.get_env("RERANK_BACKEND", "local")
+
+config :overflow,
+       :ml_ranking_url,
+       System.get_env("ML_RANKING_URL", "http://localhost:11434/v1/chat/completions")
 
 config :overflow, :gemini,
   api_key: System.get_env("GEMINI_API_KEY", ""),
