@@ -69,7 +69,7 @@ if config_env() == :prod do
   case System.get_env("GEMINI_API_KEY") do
     nil ->
       # Gemini not configured, use local backend
-      config :overflow, :rerank_backend, :local
+      config :overflow, :ranking_provider, :local
 
     gemini_api_key ->
       gemini_api_url =
@@ -81,14 +81,17 @@ if config_env() == :prod do
         api_url: gemini_api_url
 
       # Configure backend based on environment variable or default to local if Gemini is available
-      rerank_backend =
-        case System.get_env("RERANK_BACKEND", "local") do
+      ranking_provider =
+        case System.get_env("RANKING_PROVIDER", "local") do
           "local" -> :local
           "gemini" -> :gemini
-          other -> raise "Invalid RERANK_BACKEND: #{other}. Must be 'local' or 'gemini'"
+          other -> raise "Invalid RANKING_PROVIDER: #{other}. Must be 'local' or 'gemini'"
         end
 
-      config :overflow, :rerank_backend, rerank_backend
+      config :overflow, :ranking_provider, ranking_provider
+
+      config :overflow,
+             System.get_env("ML_RANKING_URL", "http://localhost:11434/v1/chat/completions")
   end
 
   # ## SSL Support
