@@ -13,11 +13,13 @@ defmodule OverflowWeb.RerankControllerTest do
   describe "POST /api/rerank" do
     test "returns reranked answers with all parameters", %{conn: conn} do
       question = Faker.Lorem.sentence(5..10)
+
       answers = [
         %{"body" => Faker.Lorem.sentence(10..15)},
         %{"body" => Faker.Lorem.sentence(8..12)},
         %{"body" => Faker.Lorem.sentence(12..18)}
       ]
+
       preference = "accuracy"
 
       Overflow.RankingApiMock
@@ -49,7 +51,9 @@ defmodule OverflowWeb.RerankControllerTest do
       answers = [%{"body" => Faker.Lorem.sentence(6..12)}]
 
       Overflow.RankingApiMock
-      |> expect(:rerank_answers, fn ^question, ^answers, "relevance" -> {:error, :ranking_failed} end)
+      |> expect(:rerank_answers, fn ^question, ^answers, "relevance" ->
+        {:error, :ranking_failed}
+      end)
 
       conn = post(conn, "/api/rerank", %{question: question, answers: answers})
       assert %{"error" => "Reranking failed"} = json_response(conn, 400)

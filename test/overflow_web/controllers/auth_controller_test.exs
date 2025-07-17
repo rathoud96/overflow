@@ -92,7 +92,9 @@ defmodule OverflowWeb.AuthControllerTest do
 
     test "fails with missing fields", %{conn: conn} do
       conn = post(conn, "/api/login", %{})
-      assert %{"error" => "Missing required fields: identifier, password"} = json_response(conn, 400)
+
+      assert %{"error" => "Missing required fields: identifier, password"} =
+               json_response(conn, 400)
     end
   end
 end

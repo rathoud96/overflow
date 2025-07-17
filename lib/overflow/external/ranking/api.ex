@@ -34,6 +34,7 @@ defmodule Overflow.External.Ranking.API do
   @spec rerank_answers(String.t(), list(), String.t()) :: {:ok, list()} | {:error, any()}
   def rerank_answers(question, answers, preference \\ "relevance") do
     backend = Application.get_env(:overflow, :rerank_backend, :local)
+
     case backend do
       :local -> Local.rerank_answers(question, answers, preference)
       :gemini -> GeminiAPI.rerank_answers(question, answers, preference)

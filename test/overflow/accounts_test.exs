@@ -155,7 +155,8 @@ defmodule Overflow.AccountsTest do
     test "returns error for too long username" do
       attrs = %{
         "email" => Faker.Internet.email(),
-        "username" => String.duplicate("a", 40), # max is 39
+        # max is 39
+        "username" => String.duplicate("a", 40),
         "password" => "validpassword123"
       }
 

@@ -60,7 +60,7 @@ defmodule OverflowWeb.HealthController do
       Overflow.Repo.query!("SELECT 1")
       :ok
     rescue
-      exception -> {:error, exception.message}
+      e in RuntimeError -> {:error, e.message}
     end
   end
 end

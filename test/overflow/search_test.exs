@@ -128,7 +128,8 @@ defmodule Overflow.SearchTest do
 
     test "handles moderately long question strings" do
       user = insert(:user)
-      long_question = String.duplicate("How to use GenServer? ", 10) # Keep under 255 char limit for varchar
+      # Keep under 255 char limit for varchar
+      long_question = String.duplicate("How to use GenServer? ", 10)
 
       attrs = %{
         question: long_question,
@@ -141,7 +142,8 @@ defmodule Overflow.SearchTest do
 
     test "returns error for question exceeding max length" do
       user = insert(:user)
-      long_question = String.duplicate("x", 1001) # Exceeds 1000 char limit
+      # Exceeds 1000 char limit
+      long_question = String.duplicate("x", 1001)
 
       attrs = %{
         question: long_question,
@@ -172,39 +174,45 @@ defmodule Overflow.SearchTest do
       user2 = insert(:user)
 
       # Create questions at different times
-      {:ok, old_question} = Search.create_search_question(%{
-        question: "Old question",
-        user_id: user1.id
-      })
+      {:ok, old_question} =
+        Search.create_search_question(%{
+          question: "Old question",
+          user_id: user1.id
+        })
 
-      Process.sleep(10) # Ensure different timestamps
+      # Ensure different timestamps
+      Process.sleep(10)
 
-      {:ok, recent_question1} = Search.create_search_question(%{
-        question: "Recent question 1",
-        user_id: user1.id
-      })
+      {:ok, recent_question1} =
+        Search.create_search_question(%{
+          question: "Recent question 1",
+          user_id: user1.id
+        })
 
       Process.sleep(10)
 
-      {:ok, recent_question2} = Search.create_search_question(%{
-        question: "Recent question 2",
-        user_id: user1.id
-      })
+      {:ok, recent_question2} =
+        Search.create_search_question(%{
+          question: "Recent question 2",
+          user_id: user1.id
+        })
 
       # Question from different user
-      {:ok, other_user_question} = Search.create_search_question(%{
-        question: "Other user question",
-        user_id: user2.id
-      })
+      {:ok, other_user_question} =
+        Search.create_search_question(%{
+          question: "Other user question",
+          user_id: user2.id
+        })
 
-      {:ok, %{
-        user1: user1,
-        user2: user2,
-        old_question: old_question,
-        recent_question1: recent_question1,
-        recent_question2: recent_question2,
-        other_user_question: other_user_question
-      }}
+      {:ok,
+       %{
+         user1: user1,
+         user2: user2,
+         old_question: old_question,
+         recent_question1: recent_question1,
+         recent_question2: recent_question2,
+         other_user_question: other_user_question
+       }}
     end
 
     test "returns recent questions for user with default limit", context do
@@ -249,7 +257,8 @@ defmodule Overflow.SearchTest do
     test "handles large limit", context do
       questions = Search.get_recent_questions_for_user(context.user1.id, 100)
 
-      assert length(questions) == 3 # Should return all available questions
+      # Should return all available questions
+      assert length(questions) == 3
     end
 
     test "handles negative limit (should return empty list)" do

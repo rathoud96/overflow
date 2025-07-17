@@ -65,7 +65,9 @@ defmodule OverflowWeb.AuthController do
            }) do
         {:ok, %User{} = user} ->
           token =
-            Phoenix.Token.sign(OverflowWeb.Endpoint, @token_salt, user.id, max_age: @token_max_age)
+            Phoenix.Token.sign(OverflowWeb.Endpoint, @token_salt, user.id,
+              max_age: @token_max_age
+            )
 
           conn
           |> put_status(:created)
