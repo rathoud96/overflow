@@ -146,7 +146,7 @@ defmodule OverflowWeb.RerankController do
     question_text = get_question_text(question)
 
     # Get the backend type and determine the appropriate provider module
-    backend = Application.get_env(:overflow, :rerank_backend, :local)
+    backend = Application.get_env(:overflow, :ranking_provider, :local)
     ranking_provider = get_ranking_provider(backend)
 
     case ranking_provider.rerank_answers(question_text, answers, preference) do

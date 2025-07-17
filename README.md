@@ -100,7 +100,7 @@ The application uses separate environment files for different environments:
 
 cp .env.example .env.prod # Production
 
-```
+````
 
 **Environment Files:**
 - `.env.example`: Template with all available variables
@@ -118,6 +118,37 @@ cp .env.example .env.prod # Production
 #### Docker Compose Files
 - `docker-compose.yml`: Production configuration (uses `.env.prod`)
 - `Dockerfile`: Multi-stage production build
+
+### Running with Docker Compose
+
+#### Build the Application
+
+```bash
+docker compose build
+````
+
+#### Run the Application
+
+```bash
+docker compose up
+```
+
+The application will be available at `http://localhost:4000`.
+
+### Troubleshooting Docker Setup
+
+#### Local ML Ranking Service Not Working
+
+If you're running a local ML ranking service and it's not accessible from within the Docker container, you need to use Docker's special hostname instead of `localhost`.
+
+**Solution:** Update your environment configuration to use `host.docker.internal` instead of `localhost`:
+
+```bash
+# In your .env.prod or environment configuration
+ML_RANKING_URL=http://host.docker.internal:11434/v1/chat/completions
+```
+
+This allows the containerized application to communicate with services running on your host machine.
 
 ## API Documentation
 
@@ -139,7 +170,7 @@ Most endpoints support optional authentication via JWT tokens. Include the token
 
 Authorization: Bearer <your-jwt-token>
 
-````
+```
 
 ---
 
@@ -149,7 +180,7 @@ Authorization: Bearer <your-jwt-token>
 
 ```http
 POST /api/signup
-````
+```
 
 **Request Body:**
 

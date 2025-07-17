@@ -32,7 +32,7 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :overflow, :rerank_backend, :local
+config :overflow, :ranking_provider, :local
 
 config :overflow, :gemini,
   api_key: System.get_env("GEMINI_API_KEY", ""),
