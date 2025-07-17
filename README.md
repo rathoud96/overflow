@@ -35,8 +35,8 @@ Overflow is an intelligent Q&A search platform that combines Stack Overflow's va
 
 - Elixir 1.18+
 - PostgreSQL
-- Optional: Machine Learning ranking service
-- Optional: Gemini API access
+- Optional: Locally deployed LLM(llama3)
+- Gemini API access
 
 ### Installation
 
@@ -86,107 +86,24 @@ The application will be available at `http://localhost:4000`.
 For the fastest and most consistent setup, use Docker. This approach handles all dependencies and ensures the same environment across different systems.
 
 ### Prerequisites for Docker
+
 - Docker
 - Docker Compose
-- Make (optional, for convenience commands)
-
-### Quick Start with Docker
-
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd overflow
-   ```
-
-2. **Start development environment:**
-   ```bash
-   # Using Make (recommended)
-   make setup
-
-   # Or using docker-compose directly
-   docker-compose -f docker-compose.dev.yml up -d
-   ```
-
-3. **Access the application:**
-   - 🌐 **Application**: http://localhost:4000
-   - 🗄️ **Database**: localhost:5433 (postgres/postgres)
-
-### Docker Commands
-
-#### Development Environment
-```bash
-# Start development environment
-make dev
-
-# View logs
-make dev-logs
-
-# Open shell in container
-make dev-shell
-
-# Stop development environment
-make dev-stop
-```
-
-#### Production Environment
-```bash
-# Build production image
-make build
-
-# Start production environment
-make run
-
-# View logs
-make logs
-
-# Stop production environment
-make stop
-```
-
-#### Database Operations
-```bash
-# Set up database (migrations + seeds)
-make db-setup
-
-# Run migrations only
-make db-migrate
-
-# Reset database
-make db-reset
-```
-
-#### Testing & Utilities
-```bash
-# Run tests
-make test
-
-# Clean up Docker resources
-make clean
-
-# View all available commands
-make help
-```
 
 ### Docker Configuration
 
 #### Environment Files Management
+
 The application uses separate environment files for different environments:
 
-```bash
-# Quick setup for development
-./setup-env.sh dev
-
-# Quick setup for production (generates secure secrets)
-./setup-env.sh prod
-
 # Manual setup
-cp .env.example .env.dev    # Development
-cp .env.example .env.prod   # Production
+
+cp .env.example .env.prod # Production
+
 ```
 
 **Environment Files:**
 - `.env.example`: Template with all available variables
-- `.env.dev`: Development environment variables
 - `.env.prod`: Production environment variables (not committed to git)
 
 **Key Variables:**
@@ -200,39 +117,7 @@ cp .env.example .env.prod   # Production
 
 #### Docker Compose Files
 - `docker-compose.yml`: Production configuration (uses `.env.prod`)
-- `docker-compose.dev.yml`: Development configuration (uses `.env.dev`)
 - `Dockerfile`: Multi-stage production build
-- `Dockerfile.dev`: Development build with faster iterations
-
-#### Environment File Security
-- Production environment files are automatically excluded from git
-- Development files use safe default values
-- Production setup script generates secure secrets automatically
-
-### Development Workflow with Docker
-
-1. **Start development environment:**
-   ```bash
-   make dev
-   ```
-
-2. **Make code changes** - they'll be automatically reloaded
-
-3. **Run tests:**
-   ```bash
-   make test
-   ```
-
-4. **View logs:**
-   ```bash
-   make dev-logs
-   ```
-
-5. **Debug in container:**
-   ```bash
-   make dev-shell
-   iex -S mix
-   ```
 
 ## API Documentation
 
@@ -241,7 +126,9 @@ Overflow provides a comprehensive REST API for searching questions, managing use
 ### Base URL
 
 ```
+
 http://localhost:4000/api
+
 ```
 
 ### Authentication
@@ -249,8 +136,10 @@ http://localhost:4000/api
 Most endpoints support optional authentication via JWT tokens. Include the token in the Authorization header:
 
 ```
+
 Authorization: Bearer <your-jwt-token>
-```
+
+````
 
 ---
 
@@ -260,7 +149,7 @@ Authorization: Bearer <your-jwt-token>
 
 ```http
 POST /api/signup
-```
+````
 
 **Request Body:**
 
@@ -471,29 +360,6 @@ POST /api/rerank
 }
 ```
 
-#### Rerank Structured Data
-
-```http
-POST /api/rerank-structured
-```
-
-**Request Body:**
-Use the exact response from `/api/search/answers/{question_id}`:
-
-```json
-{
-  "question": {
-    /* question object */
-  },
-  "answers": [
-    /* array of answer objects */
-  ]
-}
-```
-
-**Response (200 OK):**
-Returns the same structure with reranked answers and preserved question data.
-
 ---
 
 ### 📊 Response Status Codes
@@ -579,231 +445,3 @@ lib/
     ├── plugs/                # Authentication middleware
     └── router.ex             # Route definitions
 ```
-
-### Key Design Patterns
-
-- **Behavior-Driven Architecture**: Pluggable external services via behaviors
-- **Context Pattern**: Domain logic organized in contexts (Accounts, Search)
-- **Pipeline Architecture**: Request processing through plugs
-- **Separation of Concerns**: Clear boundaries between web and business logic
-
----
-
-## Configuration
-
-### Environment Variables
-
-| Variable             | Description             | Default                      | Required        |
-| -------------------- | ----------------------- | ---------------------------- | --------------- |
-| `SECRET_KEY_BASE`    | Application secret key  | Generated                    | Production      |
-| `TOKEN_SALT`         | JWT token salt          | Default salt                 | No              |
-| `ML_RANKING_URL`     | ML ranking service URL  | `http://localhost:8080/rank` | No              |
-| `ML_RANKING_TIMEOUT` | ML service timeout (ms) | `50000`                      | No              |
-| `GEMINI_API_KEY`     | Gemini AI API key       | -                            | For AI features |
-| `GEMINI_API_URL`     | Gemini AI API URL       | -                            | For AI features |
-| `DATABASE_URL`       | PostgreSQL connection   | Local DB                     | Production      |
-
-### Configuration Files
-
-- `config/config.exs` - General application config
-- `config/dev.exs` - Development environment
-- `config/prod.exs` - Production environment
-- `config/test.exs` - Test environment
-- `config/runtime.exs` - Runtime configuration
-
----
-
-## Deployment
-
-### 🐳 Docker Deployment (Recommended)
-
-#### Production Deployment with Docker
-
-1. **Prepare environment variables:**
-   ```bash
-   # Copy and customize environment file
-   cp .env.example .env.prod
-   
-   # Edit .env.prod with production values
-   nano .env.prod
-   ```
-
-2. **Build and deploy:**
-   ```bash
-   # Build production image
-   docker build -t overflow:latest .
-   
-   # Start production environment
-   docker-compose --env-file .env.prod up -d
-   ```
-
-3. **Initialize database:**
-   ```bash
-   # Run migrations (automatically handled by entrypoint script)
-   docker-compose exec app bin/overflow eval "Overflow.Release.migrate"
-   ```
-
-#### Cloud Deployment Examples
-
-**AWS ECS/Fargate:**
-```yaml
-# docker-compose.aws.yml
-version: '3.8'
-services:
-  app:
-    image: your-registry/overflow:latest
-    environment:
-      - DATABASE_URL=${RDS_DATABASE_URL}
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - PHX_HOST=${DOMAIN_NAME}
-    ports:
-      - "80:4000"
-```
-
-**Google Cloud Run:**
-```bash
-# Build and push
-docker build -t gcr.io/your-project/overflow:latest .
-docker push gcr.io/your-project/overflow:latest
-
-# Deploy
-gcloud run deploy overflow \
-  --image gcr.io/your-project/overflow:latest \
-  --platform managed \
-  --region us-central1 \
-  --set-env-vars DATABASE_URL=${DATABASE_URL}
-```
-
-**Kubernetes:**
-```yaml
-# k8s-deployment.yml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: overflow
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: overflow
-  template:
-    metadata:
-      labels:
-        app: overflow
-    spec:
-      containers:
-      - name: overflow
-        image: overflow:latest
-        ports:
-        - containerPort: 4000
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: overflow-secrets
-              key: database-url
-        - name: SECRET_KEY_BASE
-          valueFrom:
-            secretKeyRef:
-              name: overflow-secrets
-              key: secret-key-base
-```
-
-### 🖥️ Traditional Deployment
-
-#### Manual Production Setup
-
-1. **Environment Variables:**
-   ```bash
-   export SECRET_KEY_BASE="your-production-secret"
-   export DATABASE_URL="postgresql://user:pass@host:port/database"
-   export ML_RANKING_URL="https://your-ml-service.com/rank"
-   export GEMINI_API_KEY="your-gemini-key"
-   export PHX_HOST="your-domain.com"
-   export PORT=4000
-   ```
-
-2. **Database Migration:**
-   ```bash
-   mix ecto.migrate
-   ```
-
-3. **Production Build:**
-   ```bash
-   MIX_ENV=prod mix release
-   ```
-
-4. **Start Application:**
-   ```bash
-   PHX_SERVER=true _build/prod/rel/overflow/bin/overflow start
-   ```
-
-### 🔧 Production Configuration
-
-#### Required Environment Variables
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `SECRET_KEY_BASE` | Application secret key | `openssl rand -base64 64` |
-| `DATABASE_URL` | PostgreSQL connection | `postgresql://user:pass@host:5432/db` |
-| `PHX_HOST` | Your domain name | `api.yourdomain.com` |
-| `PORT` | Application port | `4000` |
-
-#### Optional Environment Variables
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `POOL_SIZE` | Database connection pool | `10` |
-| `ML_RANKING_URL` | ML service endpoint | `http://localhost:8080/rank` |
-| `GEMINI_API_KEY` | Gemini AI API key | - |
-| `RERANK_BACKEND` | Ranking backend (`local`/`gemini`) | `local` |
-
-### 🚀 CI/CD Pipeline Example
-
-#### GitHub Actions
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy to Production
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Build Docker image
-      run: docker build -t overflow:${{ github.sha }} .
-    
-    - name: Deploy to production
-      run: |
-        docker tag overflow:${{ github.sha }} overflow:latest
-        # Deploy using your preferred method
-```
-
-### 🔍 Production Monitoring
-
-#### Health Checks
-The application provides health check endpoints:
-- `GET /health` - Basic health check
-- `GET /health/ready` - Readiness probe
-- `GET /health/live` - Liveness probe
-
-#### Logging
-Production logs are structured JSON for easy parsing:
-```bash
-# View logs
-docker-compose logs -f app
-
-# Filter errors only
-docker-compose logs app | grep "level=error"
-```
-
-#### Metrics
-Access Phoenix LiveDashboard in production (with proper authentication):
-- Enable in `config/prod.exs`
-- Secure with authentication middleware
-- Monitor performance and system metrics
-
----
